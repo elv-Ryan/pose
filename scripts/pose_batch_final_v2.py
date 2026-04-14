@@ -5,6 +5,7 @@ import math
 import re
 import subprocess
 from pathlib import Path
+import argparse
 
 import cv2
 import mediapipe as mp
@@ -12,14 +13,8 @@ import numpy as np
 import requests
 from mediapipe.tasks.python import vision
 
-
-PROJECT_ROOT = Path("/home/elv-ryan/projects/pose_focus_tagger")
-INPUT_DIR = PROJECT_ROOT / "data/in/youtube_tests"
-OUTPUT_ROOT = PROJECT_ROOT / "data/out/final_batch_v2"
-OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
-
-POSE_MODEL_PATH = (PROJECT_ROOT / "models/mp_tasks/pose_landmarker/pose_landmarker_lite.task").resolve()
-DETECTOR_MODEL_PATH = (PROJECT_ROOT / "baselines/9-16-conversion-joe/models/mp_tasks/object_detector/efficientdet_lite0.tflite").resolve()
+POSE_MODEL_PATH = Path("models/mp_tasks/pose_landmarker/pose_landmarker_lite.task").resolve()
+DETECTOR_MODEL_PATH = Path("models/mp_tasks/object_detector/efficientdet_lite0.tflite").resolve()
 
 OLLAMA_URL = "http://127.0.0.1:11434/api/chat"
 OLLAMA_MODEL = "qwen3-vl:30b"
@@ -153,7 +148,7 @@ FOCUS_BOX_EMA_ALPHA = 0.25
 QWEN_AMBIGUITY_MARGIN = 0.12
 QWEN_TOP_K = 3
 
-_detector_path = PROJECT_ROOT / "baselines/pyautoflip-main/pyautoflip/detection/mediapipe_object_detector.py"
+_detector_path = "scripts/mediapipe_object_detector.py" #PROJECT_ROOT / "baselines/pyautoflip-main/pyautoflip/detection/mediapipe_object_detector.py"
 spec = importlib.util.spec_from_file_location("mp_objdet", _detector_path)
 mp_objdet = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mp_objdet)
@@ -591,10 +586,9 @@ def draw_overlay(frame, focus_box, landmarks, focus_track_id):
     return frame
 
 
-def process_video(src_path: Path):
+def process_video(src_path: Path, out_dir: Path):
     base = src_path.stem
     profile_name = PROFILE_OVERRIDES.get(base, DEFAULT_PROFILE)
-    out_dir = OUTPUT_ROOT / base
     work_dir = out_dir / "work"
     out_dir.mkdir(parents=True, exist_ok=True)
     work_dir.mkdir(parents=True, exist_ok=True)
@@ -604,7 +598,7 @@ def process_video(src_path: Path):
     overlay_path = out_dir / f"{base}_pose_overlay.mp4"
     debug_json_path = out_dir / f"{base}_pose_debug.json"
     final_jsonl_path = out_dir / f"{base}_pose_final.jsonl"
-    lite_jsonl_path = out_dir / f"{base}_pose_lite.jsonl"
+    lite_jsonl_path = out_dir / f"tags.jsonl"
     focus_debug_path = out_dir / f"{base}_focus_debug.json"
 
     cap = cv2.VideoCapture(str(working_video))
@@ -904,32 +898,14 @@ def process_video(src_path: Path):
     print(f"  frames_with_pose: {frames_with_pose}")
 
 
-def write_error_file(src_path: Path, out_dir: Path, exc: Exception):
-    out_dir.mkdir(parents=True, exist_ok=True)
-    err_path = out_dir / f"{src_path.stem}_pose_final.jsonl"
-    with open(err_path, "w", encoding="utf-8") as f:
-        f.write(json.dumps({
-            "type": "error",
-            "data": {
-                "message": repr(exc),
-                "source_media": str(src_path),
-            },
-        }) + "\n")
-    print(f"[error] {src_path.name}: {repr(exc)}")
-
-
 def main():
-    videos = sorted(INPUT_DIR.glob("*.mp4"))
-    if not videos:
-        raise SystemExit(f"no mp4 files found in {INPUT_DIR}")
-
-    for v in videos:
-        out_dir = OUTPUT_ROOT / v.stem
-        try:
-            process_video(v)
-        except Exception as e:
-            write_error_file(v, out_dir, e)
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output-path", required=True, type=str)
+    parser.add_argument("--video", required=True, type=str)
+    args = parser.parse_args()
+    video = args.video
+    output_path = args.output_path
+    process_video(Path(video), Path(output_path))
 
 if __name__ == "__main__":
     main()
