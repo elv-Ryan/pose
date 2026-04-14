@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.venv/
+venv/
+env/
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter / local notes
+.ipynb_checkpoints/
+*.swp
+*.swo
+.DS_Store
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Local baselines and archives
+baselines/
+*.zip
+
+# Large local inputs
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.m4v
+*.wav
+*.mp3
+*.aac
+*.flac
+
+# Model assets
+models/**/*.task
+models/**/*.tflite
+models/**/*.onnx
+models/**/*.pb
+models/**/*.bin
+models/**/*.ckpt
+models/**/*.pt
+models/**/*.pth
+
+# Data and generated outputs
+data/in/
+data/out/
+data/review/
+runs/
+
+# Batch working folders and arbitration boards
+**/work/
+**/qwen/
+
+# Logs and temp
+*.log
+*.tmp
+*.temp
+/tmp/
+
+# Misc local files
+yolov8n.pt
+_uploads/
