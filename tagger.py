@@ -56,7 +56,7 @@ def downsample(tags: list[Tag], fps: int) -> list[Tag]:
 
     print('approximate fps', approximate_fps)
     
-    downsample_ratio = max(int(approximate_fps / fps), 1)\
+    downsample_ratio = max(int(approximate_fps / fps), 1)
 
     print('downsample_ratio', downsample_ratio)
 
@@ -81,7 +81,7 @@ class PoseModel(AVModel):
     
 @dataclass
 class RuntimeArgs:
-    fps: int = 5
+    fps: int = 60
 
 def main():
     catch_errors()
