@@ -53,9 +53,12 @@ def downsample(tags: list[Tag], fps: int) -> list[Tag]:
     assert tags[1].start_time > 0
     assert tags[1].frame_info
     approximate_fps = tags[1].frame_info.frame_idx / (tags[1].start_time / 1000)
+
+    print('approximate fps', approximate_fps)
     
-    downsample_ratio = int(approximate_fps / fps)
-    assert downsample_ratio > 0
+    downsample_ratio = max(int(approximate_fps / fps), 1)\
+
+    print('downsample_ratio', downsample_ratio)
 
     out = []
     for i, t in enumerate(tags):
