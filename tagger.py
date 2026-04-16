@@ -13,7 +13,7 @@ def run_script(video_path: str, output_dir: str) -> None:
 
     # use sys.executable to make sure subprocesses use the same python executable
     scripts = [
-        f"{sys.executable} scripts/pose_batch_final_Vbmx.py --video {video_path} --output-path {output_dir}",
+        f"{sys.executable} scripts/pose_batch_final_v2.py --video {video_path} --output-path {output_dir}",
     ]
     for script in scripts:
         try:
